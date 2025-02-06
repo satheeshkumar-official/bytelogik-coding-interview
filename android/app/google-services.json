@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "469244652125",
+    "project_id": "bytelogik-392e2",
+    "storage_bucket": "bytelogik-392e2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:469244652125:android:cce0f5da41c8ca9d097bb4",
+        "android_client_info": {
+          "package_name": "com.example.bytelogik"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAvV_tTZV5v_1eO5NekP7kkKYA7SQ9ooEw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
