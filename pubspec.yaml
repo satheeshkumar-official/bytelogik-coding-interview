@@ -37,6 +37,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   flutter_foreground_task: ^8.17.0
   cloud_firestore: ^5.4.0
+  flutter_riverpod: ^2.6.1
 
 dev_dependencies:
   flutter_test:

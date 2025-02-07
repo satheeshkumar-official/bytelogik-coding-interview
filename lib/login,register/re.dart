@@ -1,47 +1,56 @@
-import 'package:bytelogik/login,register/login.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'login.dart';
 
-class Re extends StatefulWidget {
+final registerLoadingProvider = StateProvider<bool>((ref) => false);
+
+class Re extends ConsumerWidget {
   @override
-  _RegisterpageState createState() => _RegisterpageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final nameController = TextEditingController();
+    final emailController = TextEditingController();
+    final passwordController = TextEditingController();
+    final isLoading = ref.watch(registerLoadingProvider);
 
-class _RegisterpageState extends State<Re> {
-  final TextEditingController emailcontroller = TextEditingController();
-  final TextEditingController passwordcontroller = TextEditingController();
-  final TextEditingController namecontroller = TextEditingController();
+    void register() async {
+      ref.read(registerLoadingProvider.notifier).state = true;
+      try {
+        UserCredential userCredential =
+            await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: emailController.text.trim(),
+          password: passwordController.text.trim(),
+        );
 
-  void registeruser() async {
-    try {
-      UserCredential userCredential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: emailcontroller.text.trim(),
-        password: passwordcontroller.text.trim(),
-      );
+        String uid = userCredential.user!.uid;
+        await FirebaseFirestore.instance.collection('users').doc(uid).set({
+          "name": nameController.text.trim(),
+          "email": emailController.text.trim(),
+        });
 
-      String uid = userCredential.user!.uid;
-      await FirebaseFirestore.instance.collection('users').doc(uid).set({
-        "name": namecontroller.text.trim(),
-        "email": emailcontroller.text.trim(),
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Registration Successful! Please Login.')),
-      );
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>Loginn()));
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Registration Failed: ${e.toString()}')),
-      );
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Registration Successful! Please Login.')));
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => Loginn()));
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Registration Failed: ${e.toString()}')));
+      }
+      ref.read(registerLoadingProvider.notifier).state = false;
     }
-  }
 
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('register'),backgroundColor: Colors.amber,),
+      appBar: AppBar(
+        title: Text('Register'),
+        backgroundColor: Colors.amber,
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pushReplacement(
+                  context, MaterialPageRoute(builder: (context) => Loginn()));
+            },
+            icon: Icon(Icons.arrow_back)),
+      ),
       backgroundColor: Color.fromARGB(255, 238, 229, 183),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -49,25 +58,24 @@ class _RegisterpageState extends State<Re> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
-              controller: namecontroller,
-              decoration: InputDecoration(labelText: 'Name'),
-            ),
+                controller: nameController,
+                decoration: InputDecoration(labelText: 'Name')),
             TextField(
-              controller: emailcontroller,
-              decoration: InputDecoration(labelText: 'Email'),
-            ),
+                controller: emailController,
+                decoration: InputDecoration(labelText: 'Email')),
             TextField(
-              controller: passwordcontroller,
-              decoration: InputDecoration(labelText: 'Password'),
-              obscureText: true,
-            ),
+                controller: passwordController,
+                decoration: InputDecoration(labelText: 'Password'),
+                obscureText: true),
             SizedBox(height: 20),
             ElevatedButton(
-               style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(Color.fromARGB(255, 224, 199, 14))
-              ),
-              onPressed: registeruser,
-              child: Text('Register',style: TextStyle(color: const Color.fromARGB(255, 255, 255, 255)),),
+              style: ButtonStyle(
+                  backgroundColor:
+                      MaterialStateProperty.all<Color>(Colors.amber)),
+              onPressed: isLoading ? null : register,
+              child: isLoading
+                  ? CircularProgressIndicator()
+                  : Text('Register', style: TextStyle(color: Colors.white)),
             ),
           ],
         ),
